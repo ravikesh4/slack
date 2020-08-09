@@ -64,7 +64,7 @@ class Register extends Component {
             firebase.auth().createUserWithEmailAndPassword(
                 this.state.email, this.state.password
             ).then(createdUser => {
-                console.log(createdUser);
+                // console.log(createdUser);
                 createdUser.user.updateProfile({
                     displayName: this.state.username,
                     photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
@@ -72,7 +72,7 @@ class Register extends Component {
                 .then(() => {
                     // this.setState({ loading: false });
                     this.saveUser(createdUser).then(() => {
-                        console.log('User Saved');
+                        // console.log('User Saved');
                     })
                 })
                 .catch(err => {

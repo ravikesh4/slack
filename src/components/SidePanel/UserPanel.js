@@ -38,7 +38,9 @@ class UserPanel extends Component {
         firebase
             .auth()
             .signOut()
-            .then(() => console.log('Signed Out'))
+            .then(() => 
+            console.log('Signed Out')
+            )
     }
 
     render() {
@@ -46,9 +48,10 @@ class UserPanel extends Component {
         // console.log(this.props.currentUser)
 
         const { user} = this.state;
+        const { primaryColor } = this.props
 
         return (
-            <Grid style={{ background: '#4c3c4c'}}>
+            <Grid style={{ background: primaryColor }}>
                 <Grid.Column>
                     <Grid.Row style={{ padding: '1.2rem', maegin: 0}}>
                         {/* app header  */}

@@ -102,7 +102,7 @@ class Channels extends Component {
             .then(() => {
                 this.setState({ channelName: '', channelDetails: '' })
                 this.closeModal();
-                console.log('Channel added');
+                // console.log('Channel added');
             })
             .catch(err => 
                 console.error(err))
@@ -190,7 +190,7 @@ class Channels extends Component {
 
                     {/* Channels  */}
                     {this.displayChannels(channels)}
-                    {console.log(this.displayChannels(channels))}
+                    {/* {console.log(this.displayChannels(channels))} */}
 
                 </Menu.Menu>
 

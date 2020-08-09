@@ -64,7 +64,7 @@ class MessageForm extends Component {
                     })
                 })
                 .catch(err => {
-                    console.log(err);
+                    // console.log(err);
                     this.setState({
                         loading: false,
                         errors: this.state.errors.concat(err)
