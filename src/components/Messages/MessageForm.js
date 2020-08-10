@@ -10,6 +10,7 @@ class MessageForm extends Component {
     state = {
         storageRef: firebase.storage().ref(),
         uploadState: '',
+        typingRef: firebase.database().ref("typing"),
         uploadTask: null,
         percentUploaded: 0,
         message: '',
@@ -28,6 +29,22 @@ class MessageForm extends Component {
         this.setState({ [event.target.name]: event.target.value })
     }
 
+    handleKeyDown = () => {
+        const { message, typingRef, channel, user } = this.state;
+
+        if (message) {
+            typingRef
+                .child(channel.id)
+                .child(user.uid)
+                .set(user.displayName);
+        } else {
+            typingRef
+                .child(channel.id)
+                .child(user.uid)
+                .remove();
+        }
+    };
+
     createMessage = (fileUrl = null) => {
         const message = {
             timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -38,7 +55,7 @@ class MessageForm extends Component {
             },
             // content: this.state.message
         }
-        if(fileUrl !== null) {
+        if (fileUrl !== null) {
             message['image'] = fileUrl
         } else {
             message['content'] = this.state.message
@@ -48,37 +65,37 @@ class MessageForm extends Component {
 
     sendMessage = () => {
         const { getMessagesRef } = this.props;
-        // channel: this.state.currentChannel,
-        const { message, channel } = this.state
+        const { message, channel, user, typingRef } = this.state;
 
         if (message) {
-            this.setState({ loading: true })
-            getMessagesRef().child(channel.id)
+            this.setState({ loading: true });
+            getMessagesRef()
+                .child(channel.id)
                 .push()
                 .set(this.createMessage())
                 .then(() => {
-                    this.setState({
-                        loading: false,
-                        message: '',
-                        errors: []
-                    })
+                    this.setState({ loading: false, message: "", errors: [] });
+                    typingRef
+                        .child(channel.id)
+                        .child(user.uid)
+                        .remove();
                 })
                 .catch(err => {
-                    // console.log(err);
+                    console.error(err);
                     this.setState({
                         loading: false,
                         errors: this.state.errors.concat(err)
-                    })
-                })
+                    });
+                });
         } else {
             this.setState({
-                errors: this.state.errors.concat({ message: 'Add a message' })
-            })
+                errors: this.state.errors.concat({ message: "Add a message" })
+            });
         }
-    }
+    };
 
     getPath = () => {
-        if(this.props.isPrivateChannel) {
+        if (this.props.isPrivateChannel) {
             return `chat/private-${this.state.channel.id}`;
         } else {
             return 'chat/public';
@@ -129,17 +146,17 @@ class MessageForm extends Component {
 
     sendFileMessage = (fileUrl, ref, pathToUpload) => {
         ref.child(pathToUpload)
-        .push()
-        .set(this.createMessage(fileUrl))
-        .then(() => {
-            this.setState({ uploadState: 'done'})
-        })
-        .catch(err => {
-            console.error(err);
-            this.setState({
-                errors: this.state.errors.concat(err)
+            .push()
+            .set(this.createMessage(fileUrl))
+            .then(() => {
+                this.setState({ uploadState: 'done' })
             })
-        })
+            .catch(err => {
+                console.error(err);
+                this.setState({
+                    errors: this.state.errors.concat(err)
+                })
+            })
     }
 
     render() {
@@ -152,6 +169,7 @@ class MessageForm extends Component {
                     fluid
                     name="message"
                     onChange={this.handleChange}
+                    onKeyDown={this.handleKeyDown}
                     value={message}
                     style={{ marginBotton: '0.7em' }}
                     label={<Button icon={'add'} />}
@@ -177,15 +195,15 @@ class MessageForm extends Component {
                         icon="cloud upload"
                     />
                 </Button.Group>
-                    <FileModal
-                        modal={modal}
-                        closeModal={this.closeModal}
-                        uploadFile={this.uploadFile}
-                    />
-                    <ProgressBar 
-                        uploadState={uploadState}
-                        percentUploaded={percentUploaded}
-                    />
+                <FileModal
+                    modal={modal}
+                    closeModal={this.closeModal}
+                    uploadFile={this.uploadFile}
+                />
+                <ProgressBar
+                    uploadState={uploadState}
+                    percentUploaded={percentUploaded}
+                />
             </Segment>
         )
     }
